@@ -6,4 +6,4 @@ format:
 	black --line-length=120 $(SRC_DIR)
 
 test:
-	py.test --verbose src/
+	py.test --cov=. --cov-branch --verbose src/

@@ -59,7 +59,7 @@ def compute_frequency(changes, start=0):
     return functools.reduce(operator.add, parsed_changes, start)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":   # pragma: no cover
     changes = read_file("01_chronal_calibration.txt")
     resulting_frequency = compute_frequency(changes, start=0)
     print(f"Resulting frequency: {resulting_frequency}")
