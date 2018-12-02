@@ -47,8 +47,40 @@ Here are other example situations:
 -1, -2, -3 results in -6
 Starting with a frequency of zero, what is the resulting frequency after
 all of the changes in frequency have been applied?
+
+--- Part Two ---
+
+You notice that the device repeats the same frequency change list over
+and over. To calibrate the device, you need to find the first frequency
+it reaches twice.
+
+For example, using the same list of changes above, the device would loop
+as follows:
+
+Current frequency  0, change of +1; resulting frequency  1.
+Current frequency  1, change of -2; resulting frequency -1.
+Current frequency -1, change of +3; resulting frequency  2.
+Current frequency  2, change of +1; resulting frequency  3.
+(At this point, the device continues from the start of the list.)
+Current frequency  3, change of +1; resulting frequency  4.
+Current frequency  4, change of -2; resulting frequency  2, which has already
+been seen.
+
+In this example, the first frequency reached twice is 2. Note that your
+device might need to repeat its list of frequency changes many times
+before a duplicate frequency is found, and that duplicates might be found
+while in the middle of processing the list.
+
+Here are other examples:
+
++1, -1 first reaches 0 twice.
++3, +3, +4, -2, -4 first reaches 10 twice.
+-6, +3, +8, +5, -6 first reaches 5 twice.
++7, +7, -2, -7, -4 first reaches 14 twice.
 """
+
 import functools
+import itertools
 import operator
 
 from src.utils import read_file
@@ -59,7 +91,40 @@ def compute_frequency(changes, start=0):
     return functools.reduce(operator.add, parsed_changes, start)
 
 
-if __name__ == "__main__":   # pragma: no cover
+def first_reached_twice(changes):
+    parsed_changes = (int(c) for c in changes)
+    loop_changes = itertools.cycle(parsed_changes)
+    already_seen_frequencies = {0}
+
+    return _find_twice(already_seen_frequencies, loop_changes, 0)
+
+
+def _find_twice(already_seen_frequencies, changes, current_frequency):
+    for change in changes:
+        current_frequency += change
+
+        if current_frequency in already_seen_frequencies:
+            return current_frequency
+
+        already_seen_frequencies.add(current_frequency)
+
+
+def _find_twice_rec(already_seen_frequencies, changes, current_frequency):
+    # Does not work; hit recursion limit (or SIGSEGV if an high recursion
+    # limit is set)
+    new_frequency = current_frequency + next(changes)
+
+    if new_frequency in already_seen_frequencies:
+        return new_frequency
+    else:
+        already_seen_frequencies.add(new_frequency)
+        return _find_twice_rec(already_seen_frequencies, changes, new_frequency)
+
+
+if __name__ == "__main__":  # pragma: no cover
     changes = read_file("01_chronal_calibration.txt")
     resulting_frequency = compute_frequency(changes, start=0)
     print(f"Resulting frequency: {resulting_frequency}")
+
+    loop_frequency = first_reached_twice(changes)
+    print(f"First frequency reached twice: {loop_frequency}")
