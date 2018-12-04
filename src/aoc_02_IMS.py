@@ -45,7 +45,32 @@ twice, and three of them contain a letter which appears exactly three
 times. Multiplying these together produces a checksum of 4 * 3 = 12.
 
 What is the checksum for your list of box IDs?
+
+--- Part Two ---
+
+Confident that your list of box IDs is complete, you're ready to find the
+boxes full of prototype fabric.
+
+The boxes will have IDs which differ by exactly one character at the same
+position in both strings. For example, given the following box IDs:
+
+abcde
+fghij
+klmno
+pqrst
+fguij
+axcye
+wvxyz
+
+The IDs abcde and axcye are close, but they differ by two characters (the
+second and fourth). However, the IDs fghij and fguij differ by exactly
+one character, the third (h and u). Those must be the correct boxes.
+
+What letters are common between the two correct box IDs? (In the example
+above, this is found by removing the differing character from either ID,
+producing fgij.)
 """
+
 from collections import Counter
 from src.utils import read_file
 
@@ -60,7 +85,34 @@ def id_contains_letter_n_times(x, n):
     return n in Counter(x).values()
 
 
+"""
+Day 2 Step 2
+The list of box ids is trasformed in a number_of_ids * lenght(id) matrix.
+Then, given that the offending ids differs by one characted in the same
+position, one column at a time is removed. When the resulting list contains
+two identical "truncated" ids the "offending" character position is found.
+"""
+
+
+def find_adjacent_boxes_id(ids):
+    id_lenght = len(ids[0])
+
+    for char_to_remove_idx in range(id_lenght):
+        cleaned_ids = [remove_char_at(i, char_to_remove_idx) for i in ids]
+        id_counter = Counter(cleaned_ids)
+        if 2 in id_counter.values():
+            adjacent_boxes_id, _ = id_counter.most_common(1)[0]
+            return adjacent_boxes_id
+
+
+def remove_char_at(s, char_to_remove):
+    return s[:char_to_remove] + s[char_to_remove + 1 :]
+
+
 if __name__ == "__main__":
     warehouse_ids = read_file("02_IMS.txt")
     checksum = compute_checksum(warehouse_ids)
     print(f"Checksum: {checksum}")
+
+    adjacent_boxes_id = find_adjacent_boxes_id(warehouse_ids)
+    print(f"Adjacent boxes ID: {adjacent_boxes_id}")
